@@ -130,18 +130,6 @@ task.spawn(function ()
     end
 end)
 
-getgenv().AntiKickClient = true
-Main_Home:addToggle("Anti Kick Client", getgenv().AntiKickClient, function(Value)
-    getgenv().AntiKickClient = Value
-end)
-task.spawn(function()
-    while wait() do
-        if getgenv().AntiKickClient then
-            loadstring(game:HttpGet('https://gitlab.com/Sky2836/BT/-/raw/main/antikickclient'))()
-        end
-    end
-end)
-
 Main_Home:addButton("FPS Boost", function()
     local decalsyeeted = false
     local g = game
