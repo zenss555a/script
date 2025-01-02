@@ -2443,122 +2443,12 @@ getAllBladeHitsPlayers = LPH_NO_VIRTUALIZE(function(Sizes)
     end
     return Hits
 end)
-
-local CombatFramework = require(game:GetService("Players").LocalPlayer.PlayerScripts:WaitForChild("CombatFramework"))
-local CombatFrameworkR = getupvalues(CombatFramework)[2]
-local RigEven = game:GetService("ReplicatedStorage").RigControllerEvent
-local AttackAnim = Instance.new("Animation")
-local AttackCoolDown = 0
-local cooldowntickFire = 0
-local MaxFire = 1000
-local FireCooldown = 0
-local FireL = 0
-local bladehit = {}
-CancelCoolDown = LPH_JIT_MAX(function()
-    local ac = CombatFrameworkR.activeController
-    if ac and ac.equipped then
-        AttackCoolDown = tick() + (FireCooldown or 0.288) + ((FireL / MaxFire) * 0.3)
-        RigEven.FireServer(RigEven, "weaponChange", ac.currentWeaponModel.Name)
-        FireL = FireL + 1
-        task.delay((FireCooldown or 0.288) + ((FireL + 0.4 / MaxFire) * 0.3), function()
-            FireL = FireL - 1
-        end)
-    end
-end)
-AttackFunction = LPH_JIT_MAX(function(typef)
-    local ac = CombatFrameworkR.activeController
-    if ac and ac.equipped then
-        local bladehit = {}
-        if typef == 1 then
-            bladehit = getAllBladeHits(60)
-        elseif typef == 2 then
-            bladehit = getAllBladeHitsPlayers(65)
-        else
-            for i2, v2 in pairs(getAllBladeHits(55)) do
-                table.insert(bladehit, v2)
-            end
-            for i3, v3 in pairs(getAllBladeHitsPlayers(55)) do
-                table.insert(bladehit, v3)
-            end
-        end
-        if #bladehit > 0 then
-            pcall(task.spawn, ac.attack, ac)
-            if tick() > AttackCoolDown then
-                CancelCoolDown()
-            end
-            if tick() - cooldowntickFire > 0.5 then
-                ac.timeToNextAttack = 0
-                ac.hitboxMagnitude = 60
-                pcall(task.spawn, ac.attack, ac)
-                cooldowntickFire = tick()
-            end
-            local AMI3 = ac.anims.basic[3]
-            local AMI2 = ac.anims.basic[2]
-            local REALID = AMI3 or AMI2
-            AttackAnim.AnimationId = REALID
-            local StartP = ac.humanoid:LoadAnimation(AttackAnim)
-            StartP:Play(0.01, 0.01, 0.01)
-            RigEven.FireServer(RigEven, "hit", bladehit, AMI3 and 3 or 2, "")
-            task.delay(0, function()
-                StartP:Stop()
-            end)
-        end
-    end
-end)
 function CheckStun()
     if game:GetService('Players').LocalPlayer.Character:FindFirstChild("Stun") then
         return game:GetService('Players').LocalPlayer.Character.Stun.Value ~= 0
     end
     return false
 end
-LPH_JIT_MAX(function()
-    spawn(function()
-        while game:GetService("RunService").Stepped:Wait() do
-            local ac = CombatFrameworkR.activeController
-            if ac and ac.equipped and not CheckStun() then
-                if NeedAttacking and Fast_Attack then
-                    task.spawn(function()
-                        pcall(task.spawn, AttackFunction, 1)
-                    end)
-                elseif DamageAura then
-                    task.spawn(function()
-                        pcall(task.spawn, AttackFunction, 3)
-                    end)
-                elseif UsefastattackPlayers and Fast_Attack then
-                    task.spawn(function()
-                        pcall(task.spawn, AttackFunction, 2)
-                    end)
-                elseif NeedAttacking and Fast_Attack == false then
-                    if ac.hitboxMagnitude ~= 60 then
-                        ac.hitboxMagnitude = 60
-                    end
-                    pcall(task.spawn, ac.attack, ac)
-                end
-            end
-        end
-    end)
-end)()
-inmyselfss = LPH_JIT_MAX(function(name)
-	if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(name) then
-		return game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(name)
-	end
-	local OutValue
-	for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do 
-		if v:IsA("Tool") then
-			if v.Name == name then
-				OutValue = v
-				break
-			end
-		end
-	end
-	return OutValue or game:GetService("Players").LocalPlayer.Character:FindFirstChild(name)
-end)
-LPH_NO_VIRTUALIZE(function()
-	function Click()
-		game:GetService("VirtualUser"):CaptureController()
-		game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-	end
-end)()
 
 task.delay(15,function() 
     if hookfunction and not islclosure(hookfunction) then 
