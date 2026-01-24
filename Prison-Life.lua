@@ -1,1 +1,1 @@
-game.Players.LocalPlayer:Kick("Soon ;)")
+game.Players.LocalPlayer:Kick("Disable the script for the upcoming update ;)")
